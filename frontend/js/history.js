@@ -11,6 +11,7 @@ import {
   deleteSessionFromFirestore,
   updateSessionFields,
 } from './firebase.js';
+import { attachExportBtn } from './export.js';
 
 import { API_BASE as BACKEND } from './config.js';
 
@@ -151,6 +152,33 @@ async function restoreSession(id) {
       } catch (_) {}
     }
     msgEl.scrollTop = msgEl.scrollHeight;
+
+    // Re-attach copy button listeners (lost when HTML was serialized)
+    msgEl.querySelectorAll('.copy-btn').forEach(btn => {
+      // Clone to strip any stale listeners, then re-add
+      const fresh = btn.cloneNode(true);
+      btn.replaceWith(fresh);
+      fresh.addEventListener('click', () => {
+        // Find the markdown content from the nearest .msg-bubble
+        const bubble = fresh.closest('.msg')?.querySelector('.msg-bubble');
+        const text   = bubble?.innerText || bubble?.textContent || '';
+        navigator.clipboard.writeText(text).then(() => {
+          fresh.textContent = 'Copied ✓';
+          fresh.classList.add('copied');
+          setTimeout(() => { fresh.textContent = 'Copy'; fresh.classList.remove('copied'); }, 2000);
+        }).catch(() => {});
+      });
+    });
+
+    // Re-attach export button listeners
+    msgEl.querySelectorAll('.msg.ai').forEach(msgEl => {
+      // Remove stale export wrap and re-attach fresh
+      const existingWrap = msgEl.querySelector('.export-wrap');
+      const existingSep  = msgEl.querySelector('.btn-sep');
+      if (existingWrap) existingWrap.remove();
+      if (existingSep)  existingSep.remove();
+      attachExportBtn(msgEl);
+    });
   }
 
   import('./subject.js').then(m => m.updateSubjectBadge(session.subject));
