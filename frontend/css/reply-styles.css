@@ -299,6 +299,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
+  z-index: 10;
 }
 
 .copy-btn,
