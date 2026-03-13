@@ -151,11 +151,42 @@ async function restoreSession(id) {
       } catch (_) {}
     }
     msgEl.scrollTop = msgEl.scrollHeight;
+
+    // Re-attach copy button listeners (lost when innerHTML was replaced).
+    // .msg-bubble is a sibling of .msg-top-right, not an ancestor — so
+    // closest() can't find it. Walk up to the .msg container instead.
+    msgEl.querySelectorAll('.msg.ai').forEach(msgEl => {
+      const copyBtn = msgEl.querySelector('.copy-btn');
+      if (!copyBtn) return;
+      // Replace node to strip any stale listeners baked into the saved HTML
+      const freshBtn = copyBtn.cloneNode(true);
+      copyBtn.replaceWith(freshBtn);
+      freshBtn.addEventListener('click', () => {
+        const bubble = msgEl.querySelector('.msg-bubble');
+        const text = bubble?.innerText || '';
+        navigator.clipboard.writeText(text).then(() => {
+          freshBtn.textContent = 'Copied ✓';
+          freshBtn.classList.add('copied');
+          setTimeout(() => { freshBtn.textContent = 'Copy'; freshBtn.classList.remove('copied'); }, 2000);
+        }).catch(() => {});
+      });
+    });
+
+    // Re-attach export button listeners.
+    // Must remove stale .export-wrap nodes (they have dead event listeners)
+    // before calling attachExportBtn, otherwise the check bails out early.
+    import('./export.js').then(({ attachExportBtn }) => {
+      msgEl.querySelectorAll('.msg.ai').forEach(el => {
+        el.querySelector('.export-wrap')?.remove();
+        el.querySelector('.btn-sep')?.remove();
+        attachExportBtn(el);
+      });
+    }).catch(() => {});
   }
 
   import('./subject.js').then(m => m.updateSubjectBadge(session.subject));
   showSidebarToast('Chat restored');
-  renderHistory();
+  renderHistory(); // refresh to show active state
 }
 
 // ── Delete a session ──────────────────────────────────────────────────────────
