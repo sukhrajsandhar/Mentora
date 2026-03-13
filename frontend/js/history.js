@@ -186,7 +186,7 @@ async function restoreSession(id) {
 
   import('./subject.js').then(m => m.updateSubjectBadge(session.subject));
   showSidebarToast('Chat restored');
-  renderHistory(); // refresh to show active state
+  renderHistory();
 }
 
 // ── Delete a session ──────────────────────────────────────────────────────────
