@@ -153,13 +153,11 @@ async function restoreSession(id) {
     }
     msgEl.scrollTop = msgEl.scrollHeight;
 
-    // Re-attach copy button listeners (lost when HTML was serialized)
+    // Re-attach copy button listeners (addEventListener is lost when HTML is serialized)
     msgEl.querySelectorAll('.copy-btn').forEach(btn => {
-      // Clone to strip any stale listeners, then re-add
       const fresh = btn.cloneNode(true);
       btn.replaceWith(fresh);
       fresh.addEventListener('click', () => {
-        // Find the markdown content from the nearest .msg-bubble
         const bubble = fresh.closest('.msg')?.querySelector('.msg-bubble');
         const text   = bubble?.innerText || bubble?.textContent || '';
         navigator.clipboard.writeText(text).then(() => {
@@ -170,14 +168,13 @@ async function restoreSession(id) {
       });
     });
 
-    // Re-attach export button listeners
-    msgEl.querySelectorAll('.msg.ai').forEach(msgEl => {
-      // Remove stale export wrap and re-attach fresh
-      const existingWrap = msgEl.querySelector('.export-wrap');
-      const existingSep  = msgEl.querySelector('.btn-sep');
+    // Re-attach export button listeners (use different var name to avoid shadowing msgEl)
+    msgEl.querySelectorAll('.msg.ai').forEach(aiMsg => {
+      const existingWrap = aiMsg.querySelector('.export-wrap');
+      const existingSep  = aiMsg.querySelector('.btn-sep');
       if (existingWrap) existingWrap.remove();
       if (existingSep)  existingSep.remove();
-      attachExportBtn(msgEl);
+      attachExportBtn(aiMsg);
     });
   }
 
