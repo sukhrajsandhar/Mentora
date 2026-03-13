@@ -1,0 +1,770 @@
+<!-- Mentora — AI Tutoring App -->
+<!-- Built by Manraaj Singh (github.com/Umbra-Domini) & Sukhraj Sandhar (github.com/sukhrajsandhar) -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="author" content="Manraaj Singh & Sukhraj Sandhar" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentora</title>
+  <link rel="icon" type="image/svg+xml" href="imgs/favicon.svg" />
+
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/reply-styles.css" />
+  <link rel="stylesheet" href="css/waveform.css">
+  <link rel="stylesheet" href="css/practice-test.css" />
+  <link rel="stylesheet" href="css/history.css" />
+
+  <!-- Apply saved/default theme before paint — no flash -->
+  <script>
+    (function () {
+      const saved = localStorage.getItem('theme');
+      document.documentElement.setAttribute('data-theme', saved === 'light' ? 'light' : 'dark');
+    })();
+  </script>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- ── Header ─────────────────────────────────────────────── -->
+    <header>
+      <div class="wordmark">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"
+          style="width:28px;height:28px;flex-shrink:0;">
+          <circle cx="16" cy="16" r="15" fill="#141416" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+          <path d="M6 21 L10 11 L16 19 L22 11 L26 21" stroke="#d4d4c8" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round" fill="none" />
+          <circle cx="16" cy="23" r="1.5" fill="#818cf8" />
+        </svg>
+        <span class="wordmark-title">Mentora</span>
+
+      </div>
+
+      <div class="header-right">
+
+        <!-- ── Settings menu ── -->
+        <div class="settings-wrap" id="settingsWrap">
+          <button class="settings-btn" id="settingsBtn" title="Settings" onclick="toggleSettings()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
+          <div class="settings-panel" id="settingsPanel">
+            <div class="settings-row">
+              <span class="settings-label">Theme</span>
+              <label class="switch" aria-label="Toggle dark mode">
+                <input type="checkbox" id="themeToggle" />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">AI Voice</span>
+              <label class="settings-voice-toggle" title="Toggle AI voice">
+                <input type="checkbox" id="ttsToggleCheck" checked onchange="toggleTTS()" />
+                <span class="toggle-track"></span>
+                <span class="toggle-thumb"></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">Volume</span>
+              <div class="settings-volume-wrap">
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.5"
+                  oninput="setVolume(this.value)" title="Volume" />
+              </div>
+            </div>
+            <div class="settings-row settings-row-model">
+              <span class="model-tag">gemini-2.5-flash</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Body ───────────────────────────────────────────────── -->
+    <div class="body" id="body">
+
+      <!-- Sidebar collapse toggle -->
+      <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Toggle camera panel ["
+        onclick="toggleSidebar()">
+        <span class="chevron">‹</span>
+      </button>
+
+      <!-- LEFT: Camera sidebar -->
+      <aside class="sidebar" id="sidebar" data-mode="analyze">
+
+        <!-- ── Mode pill toggle ── -->
+        <div class="mode-toggle-wrap">
+          <div class="mode-pill" id="modePill">
+            <button class="mode-pill-btn active" id="modeAnalyzeBtn" onclick="setMode('analyze')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M2 8.5C2 7.4 2.9 6.5 4 6.5h1.5L7 4.5h10l1.5 2H20c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V8.5z" />
+              </svg>
+              Snapshot
+            </button>
+            <button class="mode-pill-btn" id="modeLiveBtn" onclick="setMode('live')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="9" y="2" width="6" height="11" rx="3" />
+                <path d="M5 10a7 7 0 0 0 14 0" />
+                <line x1="12" y1="19" x2="12" y2="22" />
+                <line x1="8" y1="22" x2="16" y2="22" />
+              </svg>
+              Live Tutor
+            </button>
+          </div>
+          <!-- frame counter only shown in analyze mode -->
+
+        </div>
+
+        <!-- 16:9 locked viewport -->
+        <div class="cam-viewport">
+          <video id="video" autoplay muted playsinline></video>
+
+          <div class="cam-idle" id="camIdle">
+            <div class="cam-idle-icon">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M2 8.5C2 7.4 2.9 6.5 4 6.5h1.5L7 4.5h10l1.5 2H20c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V8.5z" />
+              </svg>
+            </div>
+            <p id="camIdleText">Camera inactive</p>
+          </div>
+
+          <!-- Camera off overlay — shown when camera is muted during live session -->
+          <div class="cam-off-overlay" id="camOffOverlay">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <line x1="1" y1="1" x2="23" y2="23" />
+              <path d="M21 21H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3m3-3h6l2 3h2a2 2 0 0 1 2 2v9.34" />
+            </svg>
+            <span>Camera off</span>
+          </div>
+
+          <!-- Live tutor overlay — shown when live session is active -->
+          <div class="live-overlay" id="liveOverlay">
+            <div class="live-overlay-pip">
+              <div class="live-overlay-dot"></div>
+              <span>Live</span>
+            </div>
+          </div>
+
+          <div class="cam-scan" id="camScan"></div>
+
+          <div class="cam-brackets" id="camBrackets">
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <!-- Last captured frame thumbnail (analyze mode only) -->
+        <div class="cam-thumb-wrap" id="camThumbWrap">
+          <img class="cam-thumb" id="camThumb" src="" alt="Last frame" />
+          <div class="cam-thumb-meta">
+            <span class="cam-thumb-label">Last frame</span>
+            <span class="cam-thumb-time" id="camThumbTime">—</span>
+          </div>
+        </div>
+
+        <!-- Nudge shown when live but not yet analyzed (analyze mode only) -->
+        <div class="cam-nudge" id="camNudge">
+          <div class="nudge-dot"></div>
+          <p>Camera live — hit <strong>Analyze</strong><span class="space-hint"> or press <strong>Space</strong></span>
+          </p>
+        </div>
+
+        <!-- ── Analyze mode controls ── -->
+        <div class="controls" id="analyzeControls">
+          <div class="controls-row">
+            <button class="btn" id="btnStart" onclick="startCamera()">Start</button>
+            <button class="btn" id="btnStop" onclick="stopCamera()" disabled>Stop</button>
+          </div>
+          <button class="btn btn-primary" id="btnAnalyze" onclick="analyzeFrame()" disabled>Analyze</button>
+        </div>
+
+        <!-- ── Live tutor mode controls ── -->
+        <div class="controls live-controls" id="liveControls">
+          <div class="live-status-bar" id="liveStatusBar">
+            <div class="live-status-dot" id="liveStatusDot"></div>
+            <span id="liveStatusLabel">Ready to connect</span>
+            <span id="liveSessionTimer"></span>
+          </div>
+          <button class="btn btn-live" id="btnLiveSession" onclick="toggleVoice()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="9" y="2" width="6" height="11" rx="3" />
+              <path d="M5 10a7 7 0 0 0 14 0" />
+              <line x1="12" y1="19" x2="12" y2="22" />
+              <line x1="8" y1="22" x2="16" y2="22" />
+            </svg>
+            Start Chat
+          </button>
+          <div class="live-device-row">
+            <button class="live-device-btn" id="btnLiveCam" title="Toggle camera" onclick="setVideoSource('camera')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M2 8.5C2 7.4 2.9 6.5 4 6.5h1.5L7 4.5h10l1.5 2H20c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V8.5z" />
+              </svg>
+              <span>Camera</span>
+            </button>
+            <button class="live-device-btn" id="btnLiveScreen" title="Share screen" onclick="setVideoSource('screen')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" />
+                <path d="M8 21h8M12 17v4" />
+              </svg>
+              <span>Screen</span>
+            </button>
+            <button class="live-device-btn active" id="btnLiveMic" title="Toggle microphone" onclick="toggleLiveMic()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="9" y="2" width="6" height="11" rx="3" />
+                <path d="M5 10a7 7 0 0 0 14 0" />
+                <line x1="12" y1="19" x2="12" y2="22" />
+                <line x1="8" y1="22" x2="16" y2="22" />
+              </svg>
+              <span>Mic</span>
+            </button>
+          </div>
+          <!-- Waveform visualizer — full width, below device buttons -->
+          <div id="waveformStrip"><canvas id="waveformCanvas"></canvas></div>
+        </div>
+
+        <!-- ── Practice Test trigger — always visible ── -->
+        <div class="practice-test-trigger">
+          <button class="btn btn-practice" id="btnPracticeTest" onclick="openPracticeTest()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+            Create Practice Test
+          </button>
+        </div>
+
+        <!-- ── Chat History ── -->
+        <div class="chat-history-wrap" id="chatHistoryWrap">
+          <div class="ch-header">
+            <button class="ch-toggle-btn" id="chToggleBtn" aria-expanded="false" aria-controls="chatHistoryPanel"
+              onclick="toggleHistory()">
+              <svg class="ch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <span class="ch-label">Chats</span>
+              <svg class="ch-chevron" viewBox="0 0 10 6" fill="none">
+                <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+          <div class="ch-panel" id="chatHistoryPanel" aria-hidden="true">
+            <div class="ch-list" id="chatHistoryList">
+              <!-- Populated by history.js -->
+            </div>
+            <div class="ch-sidebar-toast" id="chSidebarToast"></div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- RIGHT: Chat panel -->
+      <main class="chat-panel">
+
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <span class="section-label">Chat</span>
+          </div>
+          <div class="clear-wrap">
+            <div class="clear-confirm-group" id="clearConfirmGroup">
+              <span class="clear-confirm-label">Save &amp; start new?</span>
+              <button class="clear-confirm-yes" title="Yes">Yes</button>
+              <button class="clear-confirm-no" title="Cancel">No</button>
+            </div>
+            <button class="new-chat-btn" onclick="newChat()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              New Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="messages" id="messages">
+          <div class="empty-state" id="emptyState">
+            <p class="empty-title">Ready when you are.</p>
+            <p class="empty-hint">Start the camera, point it at your work,<br />and hit <strong>Analyze</strong> — or
+              ask anything below.</p>
+          </div>
+        </div>
+
+        <div class="chat-input-wrap">
+
+          <!-- Live video PiP — shown during voice+video session -->
+          <div class="pip-wrap" id="pipWrap">
+            <video id="pipVideo" autoplay muted playsinline></video>
+            <div class="pip-label">Live</div>
+          </div>
+
+          <div class="chat-input-inner">
+            <textarea id="chatInput" placeholder="Ask a follow-up question…" rows="1"></textarea>
+            <button id="btnSend" aria-label="Send">
+              <!-- Send icon -->
+              <svg class="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="19" x2="12" y2="5" />
+                <polyline points="5 12 12 5 19 12" />
+              </svg>
+              <!-- Stop icon -->
+              <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="5" y="5" width="14" height="14" rx="2" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- Mobile tab bar (hidden on desktop via CSS) -->
+    <nav class="mobile-tabs">
+      <button class="mobile-tab active" id="tabCamera" onclick="mobileTab('camera')">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M2 8.5C2 7.4 2.9 6.5 4 6.5h1.5L7 4.5h10l1.5 2H20c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V8.5z" />
+        </svg>
+        Snapshot
+        <span class="tab-pip" id="tabPip"></span>
+      </button>
+      <button class="mobile-tab" id="tabChat" onclick="mobileTab('chat')">
+        <svg viewBox="0 0 24 24">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+        Live Tutor
+      </button>
+    </nav>
+
+  </div>
+
+  <canvas id="canvas"></canvas>
+  <div class="toast" id="toast"></div>
+
+  <!-- ── Practice Test Window ─────────────────────────────────────────── -->
+  <div class="pt-overlay" id="ptOverlay" aria-hidden="true"></div>
+
+  <div class="pt-window" id="ptWindow" role="dialog" aria-modal="true" aria-label="Practice Test Generator" hidden>
+
+    <!-- Header / drag handle -->
+    <div class="pt-header" id="ptHeader">
+      <div class="pt-header-left">
+        <svg class="pt-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+        <span class="pt-title">Create Practice Test</span>
+      </div>
+      <button class="pt-close" id="ptClose" onclick="closePracticeTest()" aria-label="Close practice test window">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- ── Config view ── -->
+    <div class="pt-body" id="ptConfigView">
+
+      <!-- Source tabs -->
+      <div class="pt-tabs" role="tablist">
+        <button class="pt-tab active" id="ptTabFiles" role="tab" data-tab="files" onclick="ptSwitchTab('files')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+          Upload Files
+        </button>
+        <button class="pt-tab" id="ptTabText" role="tab" data-tab="text" onclick="ptSwitchTab('text')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="17" y1="10" x2="3" y2="10" />
+            <line x1="21" y1="6" x2="3" y2="6" />
+            <line x1="21" y1="14" x2="3" y2="14" />
+            <line x1="17" y1="18" x2="3" y2="18" />
+          </svg>
+          Paste Text
+        </button>
+
+        <button class="pt-tab" id="ptTabSession" role="tab" data-tab="session" onclick="ptSwitchTab('session')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          Use Session
+        </button>
+      </div>
+
+      <!-- Tab panels -->
+      <div class="pt-tab-panels">
+
+        <!-- Files tab -->
+        <div class="pt-panel" id="ptPanelFiles" role="tabpanel">
+          <div class="pt-dropzone" id="ptDropzone">
+            <input type="file" id="ptFileInput" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.docx" hidden />
+            <svg class="pt-drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <p class="pt-drop-label">Drop PDFs, images, or Word docs here</p>
+            <p class="pt-drop-sub">or <button class="pt-browse-link"
+                onclick="document.getElementById('ptFileInput').click()">browse files</button></p>
+          </div>
+          <div class="pt-file-chips" id="ptFileChips"></div>
+          <div class="pt-file-error" id="ptFileError"></div>
+        </div>
+
+        <!-- Text tab -->
+        <div class="pt-panel pt-panel-hidden" id="ptPanelText" role="tabpanel">
+          <div class="pt-textarea-wrap">
+            <textarea class="pt-textarea" id="ptTextInput" rows="6"
+              placeholder="Paste your notes, a topic description, or any text…" oninput="ptTextCounter()"></textarea>
+            <span class="pt-char-count" id="ptCharCount">0</span>
+          </div>
+        </div>
+
+        <!-- Session tab -->
+        <div class="pt-panel pt-panel-hidden" id="ptPanelSession" role="tabpanel">
+          <div class="pt-session-info" id="ptSessionInfo">
+            <!-- Populated dynamically by practice-test.js -->
+          </div>
+        </div>
+
+      </div><!-- /.pt-tab-panels -->
+
+      <!-- ── Config options ── -->
+      <div class="pt-config">
+
+        <!-- Difficulty -->
+        <div class="pt-config-row">
+          <span class="pt-field-label">Difficulty</span>
+          <div class="pt-difficulty-pills" role="group" aria-label="Difficulty">
+            <button class="pt-pill" data-diff="1" onclick="ptSetDifficulty(1)">1 · Easy</button>
+            <button class="pt-pill active" data-diff="2" onclick="ptSetDifficulty(2)">2 · Medium</button>
+            <button class="pt-pill" data-diff="3" onclick="ptSetDifficulty(3)">3 · Hard</button>
+          </div>
+        </div>
+
+        <!-- Number of questions -->
+        <div class="pt-config-row">
+          <span class="pt-field-label">Questions</span>
+          <div class="pt-q-pills">
+            <button class="pt-q-pill active" data-val="5" onclick="ptUpdateQuestionCount(5)">5</button>
+            <button class="pt-q-pill" data-val="10" onclick="ptUpdateQuestionCount(10)">10</button>
+            <button class="pt-q-pill" data-val="15" onclick="ptUpdateQuestionCount(15)">15</button>
+            <button class="pt-q-pill" data-val="20" onclick="ptUpdateQuestionCount(20)">20</button>
+            <button class="pt-q-pill" data-val="25" onclick="ptUpdateQuestionCount(25)">25</button>
+          </div>
+        </div>
+
+        <!-- Question types -->
+        <div class="pt-config-row pt-config-row-types">
+          <span class="pt-field-label">Include</span>
+          <div class="pt-checkboxes">
+            <label class="pt-check-label">
+              <input type="checkbox" id="ptTypeMultiple" checked />
+              <span class="pt-check-box"></span>
+              Multiple choice
+            </label>
+            <label class="pt-check-label">
+              <input type="checkbox" id="ptTypeShort" checked />
+              <span class="pt-check-box"></span>
+              Short answer
+            </label>
+            <label class="pt-check-label">
+              <input type="checkbox" id="ptTypeTrueFalse" />
+              <span class="pt-check-box"></span>
+              True / False
+            </label>
+          </div>
+        </div>
+
+      </div><!-- /.pt-config -->
+
+    </div><!-- /#ptConfigView -->
+
+    <!-- ── Results view (hidden until generation completes) ── -->
+    <div class="pt-body pt-body-hidden" id="ptResultView">
+
+      <div class="pt-result-topbar">
+        <button class="pt-back-btn" onclick="ptShowConfig()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back
+        </button>
+        <span class="pt-result-title" id="ptResultTitle"></span>
+      </div>
+
+      <!-- Skeleton loader (shown while generating) -->
+      <div class="pt-skeleton" id="ptSkeleton" hidden>
+        <div class="pt-skeleton-line pt-skel-w80"></div>
+        <div class="pt-skeleton-line pt-skel-w60"></div>
+        <div class="pt-skeleton-line pt-skel-w90"></div>
+        <div class="pt-skeleton-gap"></div>
+        <div class="pt-skeleton-line pt-skel-w70"></div>
+        <div class="pt-skeleton-line pt-skel-w85"></div>
+        <div class="pt-skeleton-line pt-skel-w55"></div>
+        <div class="pt-skeleton-gap"></div>
+        <div class="pt-skeleton-line pt-skel-w80"></div>
+        <div class="pt-skeleton-line pt-skel-w65"></div>
+      </div>
+
+      <!-- Rendered test content -->
+      <div class="pt-result-content" id="ptResultContent"></div>
+
+    </div><!-- /#ptResultView -->
+
+    <!-- ── Footer ── -->
+    <div class="pt-footer" id="ptFooter">
+      <!-- Config footer: Generate button -->
+      <div class="pt-footer-config" id="ptFooterConfig">
+        <span class="pt-footer-hint" id="ptFooterHint">Select a content source above</span>
+        <button class="btn btn-primary pt-generate-btn" id="ptBtnGenerate" onclick="generatePracticeTest()" disabled>
+          <svg class="pt-gen-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+          <span class="pt-gen-spinner" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="pt-spinner-svg">
+              <circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="60" />
+            </svg>
+          </span>
+          <span id="ptBtnLabel">Generate Test</span>
+        </button>
+      </div>
+      <!-- Results footer: Copy + PDF -->
+      <div class="pt-footer-results pt-footer-hidden" id="ptFooterResults">
+        <button class="btn pt-export-btn" id="ptBtnCopy" onclick="ptCopyText()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+          Copy as Text
+        </button>
+        <button class="btn pt-export-btn" id="ptBtnPDF" onclick="ptDownloadPDF()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Download PDF
+        </button>
+      </div>
+    </div><!-- /.pt-footer -->
+
+  </div><!-- /#ptWindow -->
+
+  <!-- ── Summary window ── -->
+  <div class="pt-overlay" id="smOverlay" aria-hidden="true" hidden></div>
+
+  <div class="pt-window" id="smWindow" role="dialog" aria-modal="true" aria-label="Chat Summary" hidden>
+
+    <div class="pt-header">
+      <div class="pt-header-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" style="width:13px;height:13px;color:var(--text-dim)">
+          <line x1="8" y1="6" x2="21" y2="6" />
+          <line x1="8" y1="12" x2="21" y2="12" />
+          <line x1="8" y1="18" x2="21" y2="18" />
+          <line x1="3" y1="6" x2="3.01" y2="6" />
+          <line x1="3" y1="12" x2="3.01" y2="12" />
+          <line x1="3" y1="18" x2="3.01" y2="18" />
+        </svg>
+        <span class="pt-title">Chat Summary</span>
+      </div>
+      <button class="pt-close" onclick="closeSummary()" aria-label="Close summary window">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="pt-body">
+      <div class="pt-result-topbar">
+        <span class="pt-result-title" id="smResultTitle"></span>
+      </div>
+
+      <!-- Skeleton loader -->
+      <div class="pt-skeleton" id="smSkeleton">
+        <div class="pt-skeleton-line pt-skel-w80"></div>
+        <div class="pt-skeleton-line pt-skel-w60"></div>
+        <div class="pt-skeleton-line pt-skel-w90"></div>
+        <div class="pt-skeleton-gap"></div>
+        <div class="pt-skeleton-line pt-skel-w70"></div>
+        <div class="pt-skeleton-line pt-skel-w85"></div>
+        <div class="pt-skeleton-line pt-skel-w55"></div>
+        <div class="pt-skeleton-gap"></div>
+        <div class="pt-skeleton-line pt-skel-w80"></div>
+        <div class="pt-skeleton-line pt-skel-w65"></div>
+      </div>
+
+      <!-- Rendered summary -->
+      <div class="pt-result-content" id="smContent"></div>
+    </div>
+
+    <div class="pt-footer pt-footer-hidden" id="smFooter">
+      <div class="pt-footer-results">
+        <button class="btn pt-export-btn" id="smBtnCopy" onclick="smCopyText()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+          Copy as Text
+        </button>
+        <button class="btn pt-export-btn" onclick="smDownloadPDF()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Download PDF
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /#smWindow -->
+
+  <!-- ── Flashcards window ── -->
+  <div class="pt-overlay" id="fcOverlay" aria-hidden="true" hidden></div>
+
+  <div class="pt-window fc-window" id="fcWindow" role="dialog" aria-modal="true" aria-label="Flashcards" hidden>
+
+    <div class="fc-header pt-header">
+      <div class="pt-header-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" style="width:13px;height:13px;color:var(--text-dim)">
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <path d="M12 4v16" />
+        </svg>
+        <span class="pt-title" id="fcTitle">Flashcards</span>
+      </div>
+      <button class="pt-close" onclick="closeFlashcards()" aria-label="Close flashcards">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="pt-body fc-body">
+
+      <!-- ── View 1: Session picker ── -->
+      <div id="fcPickerView" style="display:flex;flex-direction:column;width:100%;gap:12px">
+        <p class="pt-sess-picker-label">Choose a session to generate from:</p>
+        <div class="pt-sess-list" id="fcPickerList"></div>
+        <button class="btn fc-generate-btn" onclick="fcGenerate()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" width="14" height="14">
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <path d="M12 4v16" />
+          </svg>
+          Generate Flashcards
+        </button>
+      </div>
+
+      <!-- ── View 2: Loading ── -->
+      <div id="fcLoadingView"
+        style="display:none;flex-direction:column;align-items:center;gap:10px;width:100%;padding:20px 0">
+        <div class="pt-skeleton-line pt-skel-w60"></div>
+        <div class="pt-skeleton-line pt-skel-w80"></div>
+        <div class="pt-skeleton-line pt-skel-w50"></div>
+      </div>
+
+      <!-- ── View 3: Cards ── -->
+      <div id="fcCardsView" style="display:none;flex-direction:column;align-items:center;width:100%;gap:0">
+        <div class="fc-card-wrap">
+          <div class="fc-card" onclick="fcFlip()">
+            <div class="fc-card-inner" id="fcCardInner">
+              <div class="fc-face fc-face-front">
+                <span class="fc-face-label">Term</span>
+                <div class="fc-face-text" id="fcFront"></div>
+                <span class="fc-tap-hint">Click to reveal →</span>
+              </div>
+              <div class="fc-face fc-face-back">
+                <span class="fc-face-label">Answer</span>
+                <div class="fc-face-text" id="fcBack"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Controls sit inside cards view -->
+        <div class="fc-controls">
+          <button class="fc-nav-btn" onclick="fcPrev()" title="Previous (←)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="16" height="16">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <span class="fc-counter" id="fcCounter"></span>
+          <button class="fc-nav-btn" onclick="fcNext()" title="Next (→)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="16" height="16">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+          <button class="fc-shuffle-btn" onclick="fcShuffle()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="14" height="14">
+              <polyline points="16 3 21 3 21 8" />
+              <line x1="4" y1="20" x2="21" y2="3" />
+              <polyline points="21 16 21 21 16 21" />
+              <line x1="15" y1="15" x2="21" y2="21" />
+            </svg>
+            Shuffle
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /#fcWindow -->
+
+  <!-- ES module entry point -->
+  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/practice-test.js"></script>
+  <script type="module" src="js/summary.js"></script>
+  <script type="module" src="js/flashcards.js"></script>
+</body>
+
+</html>

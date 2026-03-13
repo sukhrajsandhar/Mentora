@@ -1,0 +1,451 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   reply-styles.css
+   All visual styling for AI reply bubbles lives here.
+   Load this AFTER styles.css via a second <link> tag in index.html:
+
+     <link rel="stylesheet" href="styles.css" />
+     <link rel="stylesheet" href="reply-styles.css" />
+
+   This file is purely additive — styles.css is untouched and the site
+   will never break if this file is missing or renamed.
+
+   WHAT YOU CAN CHANGE HERE:
+   ─ AI message card shape, padding, border               → .msg.ai
+   ─ Section headers  ## 📌  ## 🧠  ## ✅  ## 🤔         → .msg-bubble h2
+   ─ Step headers     ### Step N:                         → .msg-bubble h3
+   ─ Step dividers    ---                                 → .msg-bubble hr
+   ─ Body text, bold, italic                              → p / strong / em
+   ─ "Think About This" last-paragraph style              → p:last-of-type
+   ─ Lists                                                → ul / ol / li
+   ─ Inline code + code blocks                            → code / pre
+   ─ LaTeX display                                        → .katex-display
+   ─ Streaming plain-text colour                          → .stream-plain
+   ─ Copy / Export buttons                                → .copy-btn / .export-btn
+   ─ "What I Saw" footnote                                → .msg-seen-*
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+
+/* ── AI speaking state — pulses while audio is playing ──────────────────────── */
+
+@keyframes speakingPulse {
+  0%, 100% { border-color: var(--border);                                          box-shadow: none; }
+  50%       { border-color: color-mix(in srgb, var(--speaking-color, #818cf8) 60%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--speaking-color, #818cf8) 12%, transparent), 0 0 16px color-mix(in srgb, var(--speaking-color, #818cf8) 10%, transparent); }
+}
+
+.msg.ai.speaking {
+  animation: speakingPulse 1.6s ease-in-out infinite;
+}
+
+/* ── Interrupt acknowledgement pill ─────────────────────────────────────────── */
+
+.interrupt-pill {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-family: 'Geist Mono', monospace;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  background: var(--surface-2);
+  border: 1px solid var(--border-hi);
+  border-radius: 20px;
+  padding: 3px 10px;
+  pointer-events: none;
+  animation: pillFadeOut 1.4s ease forwards;
+}
+
+@keyframes pillFadeOut {
+  0%   { opacity: 1;  transform: translateX(-50%) translateY(0px);  }
+  60%  { opacity: 1;  transform: translateX(-50%) translateY(-2px); }
+  100% { opacity: 0;  transform: translateX(-50%) translateY(-5px); }
+}
+
+
+
+.msg.ai {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px 16px;
+  margin-bottom: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Base bubble — transparent so the card background shows through */
+.msg.ai .msg-bubble {
+  background: transparent;
+  border: none;
+  padding: 4px 0 0 0;
+  width: 100%;
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+
+/* ── Message label + timestamp ──────────────────────────────────────────────── */
+
+.msg-label {
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.msg-time {
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-left: 6px;
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+
+/* ── Section headers  (## 📌 What I See, ## 🧠 Solution, ## ✅ Final Answer, ## 🤔 Think) ── */
+
+.msg-bubble h2 {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+  margin: 24px 0 10px;
+  padding: 0 0 6px 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  display: block;
+}
+
+.msg-bubble h2:first-child { margin-top: 0; }
+
+
+/* ── Step headers  (### Step N: Name) ──────────────────────────────────────── */
+
+.msg-bubble h3 {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  color: var(--text-mid);
+  margin: 20px 0 6px;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  display: block;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.msg-bubble h3::before { display: none; }
+
+.msg-bubble > h1:first-child,
+.msg-bubble > h2:first-child,
+.msg-bubble > h3:first-child { margin-top: 0; }
+
+
+/* ── Step dividers  (--- between steps) ─────────────────────────────────────── */
+
+.msg-bubble hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 18px 0;
+}
+
+
+/* ── Body text ──────────────────────────────────────────────────────────────── */
+
+.msg-bubble p {
+  margin-bottom: 10px;
+  line-height: 1.85;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.msg-bubble p:last-child { margin-bottom: 0; }
+
+
+.msg-bubble strong {
+  font-weight: 600;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.msg-bubble em { color: var(--text-mid); font-style: italic; }
+
+/* Blockquote — render exactly like a normal paragraph.
+   Voice reformat sometimes outputs "> text" despite instructions.
+   all:unset wipes browser defaults, then we re-apply p values. */
+.msg-bubble blockquote {
+  all: unset;
+  display: block;
+  margin: 0 0 10px 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-style: normal;
+  font-size: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.85;
+  letter-spacing: 0;
+}
+
+/* Flatten any <p> nested inside a blockquote */
+.msg-bubble blockquote p {
+  margin-bottom: 0;
+}
+
+
+/* ── Lists ──────────────────────────────────────────────────────────────────── */
+
+.msg-bubble ul, .msg-bubble ol {
+  padding-left: 18px;
+  margin: 6px 0 12px;
+}
+
+.msg-bubble li {
+  margin-bottom: 5px;
+  line-height: 1.75;
+  padding-left: 2px;
+}
+
+.msg-bubble li::marker { color: var(--text-muted); }
+
+
+/* ── Inline code ────────────────────────────────────────────────────────────── */
+
+.msg-bubble code {
+  font-size: 12px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--code-inline-bg);
+  border: 1px solid var(--border-hi);
+  color: var(--text);
+  font-family: 'Geist Mono', monospace;
+}
+
+
+/* ── Code blocks ────────────────────────────────────────────────────────────── */
+
+.msg-bubble pre {
+  background: var(--code-block-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin: 12px 0;
+  overflow-x: auto;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.msg-bubble pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  color: #c0c8c0;
+}
+
+
+/* ── LaTeX / KaTeX ──────────────────────────────────────────────────────────── */
+
+.msg-bubble .katex { font-size: 1em; }
+
+.msg-bubble .katex-display {
+  margin: 14px 0;
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
+.msg-bubble .katex-display > .katex {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.msg-bubble .katex-display > .katex::-webkit-scrollbar { display: none; }
+
+
+/* ── Streaming plain-text colour (shown before markdown renders) ─────────────── */
+
+.msg.streaming .msg-bubble .stream-plain {
+  color: var(--text-mid);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+
+/* ── Copy + Export button row ───────────────────────────────────────────────── */
+
+.msg-top-right {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.copy-btn,
+.export-btn {
+  font-size: 9.5px;
+  font-family: 'Geist Mono', monospace;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: none !important;
+  border: none !important;
+  padding: 3px 6px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: color 0.15s, opacity 0.15s;
+  border-radius: 2px;
+  line-height: 1;
+  outline: none;
+}
+
+.copy-btn:hover,
+.export-btn:hover { opacity: 1; color: var(--text); }
+.copy-btn.copied  { color: var(--text); opacity: 1; }
+
+.btn-sep {
+  font-size: 9px;
+  color: var(--text-dim);
+  opacity: 0.3;
+  user-select: none;
+  padding: 0 1px;
+}
+
+.export-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.export-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: 6px;
+  padding: 4px;
+  z-index: 200;
+  min-width: 148px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+
+.export-menu.open { display: block; }
+
+.export-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 7px 12px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.4px;
+  color: var(--text-mid);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.1s, color 0.1s;
+}
+
+.export-item:hover { background: var(--border); color: var(--text); }
+
+
+/* ── "What I Saw" footnote ──────────────────────────────────────────────────── */
+
+.msg-seen-footnote {
+  margin-top: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.msg-seen-toggle {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  opacity: 0.75;
+  cursor: pointer;
+  user-select: none;
+  font-family: 'Geist Mono', monospace;
+  transition: opacity 0.15s;
+}
+
+.msg-seen-toggle:hover { opacity: 1; }
+
+.msg-seen-text {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  opacity: 0.75;
+  font-style: italic;
+  display: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+.msg-seen-footnote.expanded .msg-seen-text { display: inline; }
+
+/* ── Voice reply — reset any italic/styled last-paragraph rules ── */
+.msg.ai.voice-reply .msg-bubble p {
+  font-style: normal;
+  color: var(--text);
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+/* ── Voice user bubble — sans-serif so speech-to-text reads naturally ── */
+.msg.user.user-voice-turn .msg-bubble {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+
+
+
+/* ── Send / Stop button toggle ──────────────────────────────────────────────── */
+
+/* Both icons present in DOM; only one visible at a time */
+#btnSend .icon-send  { display: block; }
+#btnSend .icon-stop  { display: none;  }
+
+#btnSend.is-stop .icon-send { display: none;  }
+#btnSend.is-stop .icon-stop { display: block; }
+
+/* Stop state: filled red square, no background shimmer */
+#btnSend.is-stop {
+  background: transparent !important;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+#btnSend.is-stop:hover {
+  color: #ef4444;
+}
+
+/* Smooth icon swap */
+#btnSend svg {
+  transition: opacity 0.1s;
+}

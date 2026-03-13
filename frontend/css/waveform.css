@@ -1,0 +1,29 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   waveform.css
+   Visual audio feedback for the Live Tutor session.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Strip — grows to fill the right side of the status bar ─────────────────── */
+
+#waveformStrip {
+  display:       none;
+  width:         100%;
+  height:        36px;
+  margin-top:    4px;
+  overflow:      visible;
+  box-sizing:    border-box;
+  opacity:       0;
+  transition:    opacity 0.4s ease;
+}
+
+#waveformStrip.wf-active {
+  display: flex;
+  opacity: 1;
+}
+
+#waveformCanvas {
+  display:         block;
+  width:           100%;
+  height:          100%;
+  image-rendering: pixelated;
+}

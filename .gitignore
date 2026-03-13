@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment variables — NEVER commit these
+.env
+backend/.env
+*.env
+.env.*
+
+# Service account keys
+service-account.json
+*-service-account.json
+*.key.json
+
+# Build artifacts
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+
+# VS Code
+.vscode/
+
+# Firebase cache
+.firebase/
