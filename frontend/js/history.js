@@ -11,7 +11,6 @@ import {
   deleteSessionFromFirestore,
   updateSessionFields,
 } from './firebase.js';
-import { attachExportBtn } from './export.js';
 
 import { API_BASE as BACKEND } from './config.js';
 
@@ -152,35 +151,11 @@ async function restoreSession(id) {
       } catch (_) {}
     }
     msgEl.scrollTop = msgEl.scrollHeight;
-
-    // Re-attach copy button listeners (addEventListener is lost when HTML is serialized)
-    msgEl.querySelectorAll('.copy-btn').forEach(btn => {
-      const fresh = btn.cloneNode(true);
-      btn.replaceWith(fresh);
-      fresh.addEventListener('click', () => {
-        const bubble = fresh.closest('.msg')?.querySelector('.msg-bubble');
-        const text   = bubble?.innerText || bubble?.textContent || '';
-        navigator.clipboard.writeText(text).then(() => {
-          fresh.textContent = 'Copied ✓';
-          fresh.classList.add('copied');
-          setTimeout(() => { fresh.textContent = 'Copy'; fresh.classList.remove('copied'); }, 2000);
-        }).catch(() => {});
-      });
-    });
-
-    // Re-attach export button listeners (use different var name to avoid shadowing msgEl)
-    msgEl.querySelectorAll('.msg.ai').forEach(aiMsg => {
-      const existingWrap = aiMsg.querySelector('.export-wrap');
-      const existingSep  = aiMsg.querySelector('.btn-sep');
-      if (existingWrap) existingWrap.remove();
-      if (existingSep)  existingSep.remove();
-      attachExportBtn(aiMsg);
-    });
   }
 
   import('./subject.js').then(m => m.updateSubjectBadge(session.subject));
   showSidebarToast('Chat restored');
-  renderHistory(); // refresh to show active state
+  renderHistory();
 }
 
 // ── Delete a session ──────────────────────────────────────────────────────────

@@ -9,6 +9,7 @@ import { toggleVoice, toggleTTS, stopSpeaking, setVolume, startLiveWithCamera, s
 import { state } from './state.js';
 import { initHistory, toggleHistory } from './history.js';
 import { initFileAttach } from './fileAttach.js';
+import { initMessageDelegation } from './export.js';
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
@@ -17,6 +18,7 @@ initTheme();
 initSubjectOverride();   // inject subject dropdown into header
 initHistory();           // wire up Firestore session history
 initFileAttach();        // wire up file attachment for chat input
+initMessageDelegation(); // delegated copy+export listeners for all messages
 
 // ── Mode switching ────────────────────────────────────────────────────────────
 
@@ -167,4 +169,3 @@ document.addEventListener('keydown', e => {
     toggleSidebar();
   }
 });
-
